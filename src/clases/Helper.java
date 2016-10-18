@@ -6,7 +6,14 @@
 package clases;
 
 import java.awt.Component;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -172,9 +179,9 @@ public class Helper {
         return aux;
 
     }
-    
-     public static String recorridoHaciaArriba(int[][] m, int j, int in, int fin) {
-      
+
+    public static String recorridoHaciaArriba(int[][] m, int j, int in, int fin) {
+
         String aux = "";
         for (int i = in; i >= fin; i--) {
             aux = aux + m[i][j] + ", ";
@@ -192,9 +199,9 @@ public class Helper {
         return aux;
 
     }
-    
-     public static String recorridoHaciaAbajo(int[][] m, int j, int in, int fin) {
-      
+
+    public static String recorridoHaciaAbajo(int[][] m, int j, int in, int fin) {
+
         String aux = "";
         for (int i = in; i < fin; i++) {
             aux = aux + m[i][j] + ", ";
@@ -214,29 +221,30 @@ public class Helper {
                 aux = aux + Helper.recorridoHaciaAbajo(m, j);
             }
         }
-        aux = aux.substring(0, aux.length()-2)+".";
+        aux = aux.substring(0, aux.length() - 2) + ".";
         return aux;
     }
-    
+
     public static String recorridoHaciaIzquierda(int[][] m, int i) {
         int nc = m[0].length;
         String aux = "";
-        for (int j = nc-1; j >= 0; j--) {
+        for (int j = nc - 1; j >= 0; j--) {
             aux = aux + m[i][j] + ", ";
         }
         return aux;
 
     }
-    
-     public static String recorridoHaciaIzquierda(int[][] m, int i, int in, int fin) {
-        
+
+    public static String recorridoHaciaIzquierda(int[][] m, int i, int in, int fin) {
+
         String aux = "";
-        for (int j =in; j >= fin; j--) {
+        for (int j = in; j >= fin; j--) {
             aux = aux + m[i][j] + ", ";
         }
         return aux;
 
     }
+
     public static String recorridoHaciaDerecha(int[][] m, int i) {
         int nc = m[0].length;
         String aux = "";
@@ -246,9 +254,9 @@ public class Helper {
         return aux;
 
     }
-    
-    public static String recorridoHaciaDerecha(int[][] m, int i,int in, int fin) {
-       
+
+    public static String recorridoHaciaDerecha(int[][] m, int i, int in, int fin) {
+
         String aux = "";
         for (int j = in; j < fin; j++) {
             aux = aux + m[i][j] + ", ";
@@ -256,43 +264,75 @@ public class Helper {
         return aux;
 
     }
-    
-    public static String recorridoDos(JTable tabla1){
+
+    public static String recorridoDos(JTable tabla1) {
         int m[][] = pasoDeDatos(tabla1);
         int nf = m.length;
-        String aux="";
+        String aux = "";
         for (int i = 0; i < nf; i++) {
-            if(i%2==0){
-                aux=aux+ recorridoHaciaIzquierda(m, i);
-            }else{
-                aux=aux+recorridoHaciaDerecha(m, i);
+            if (i % 2 == 0) {
+                aux = aux + recorridoHaciaIzquierda(m, i);
+            } else {
+                aux = aux + recorridoHaciaDerecha(m, i);
+            }
+
+        }
+        aux = aux.substring(0, aux.length() - 2) + ".";
+        return aux;
+    }
+
+    public static void llenarTabla(JTable tabla, String ruta) {
+        DefaultTableModel tm;
+        int nf;
+        ArrayList <Persona> personas = traerDatos(ruta);
+        tm = (DefaultTableModel) tabla.getModel();
+        limpiadoTabla(tabla);
+
+        nf = personas.size();
+
+        tm.setRowCount(nf);
+
+        for (int i = 0; i < nf; i++) {
+            tabla.setValueAt(i + 1, i, 0);
+            tabla.setValueAt(personas.get(i).getNombre(), i, 1);
+            tabla.setValueAt(personas.get(i).getApellido(), i, 2);
+            tabla.setValueAt(personas.get(i).getCedula(), i, 3);
+
+        }
+
+    }
+    
+    public static ArrayList traerDatos(String ruta){
+        FileInputStream archivo;
+        ObjectInputStream entrada;
+        ArrayList personas = new ArrayList();
+        Object p;
+        
+        try {
+            archivo = new FileInputStream(ruta);
+            entrada = new ObjectInputStream(archivo);
+            while((p=entrada.readObject())!=null){
+                personas.add(p);
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+             System.out.println(ex.getMessage());
+        }
+        
+        return personas;
+    }
+    
+    public static void volcado(ObjectOutputStream salida,ArrayList personas ){
+        for (int i = 0; i < personas.size(); i++) {
+            try {
+                salida.writeObject(personas.get(i));
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
             }
             
         }
-        aux = aux.substring(0, aux.length()-2)+".";
-        return aux;
     }
-    
-public static void llenarTabla(JTable tabla, ArrayList <Persona> personas){
-    DefaultTableModel tm;
-    int nf;
-    
-    tm = (DefaultTableModel)tabla.getModel();
-    limpiadoTabla(tabla);
-    
-    nf = personas.size();
-    
-    tm.setRowCount(nf);
-    
-    for (int i = 0; i < nf; i++) {
-        tabla.setValueAt(i+1, i, 0);
-        tabla.setValueAt(personas.get(i).getNombre(), i, 1);
-        tabla.setValueAt(personas.get(i).getApellido(), i, 2);
-        tabla.setValueAt(personas.get(i).getCedula(), i, 3);
-        
-        
-        
-    }
-    
-}
 }
